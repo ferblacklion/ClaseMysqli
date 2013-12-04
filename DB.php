@@ -5,6 +5,7 @@ define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'users_pl');
+define('DB_NAME_TEST', 'galloapp');
 define('CHARSET','utf8');
 
 
@@ -21,7 +22,7 @@ class DB
 	protected static $reflection;  # objecto reflexivo de mysqli_stmt
 	protected static $sql;  # sentencia sql a ser preparada
 	protected static $data;  # array conteniendo los tipos de datos mas los datos a ser enlazados (sera recibido como parametros)
-	public static $results;  #  colección de datos retornados por consulta de selección
+	private static $results = array();  #  colección de datos retornados por consulta de selección
 	protected static $failDB = false;  #  si existe un error en la conexión a la DB
 
 
@@ -41,7 +42,7 @@ class DB
 
 
 	/*  getters */
-	public function getName(){ return self::$DB; }
+	public function getNameDB(){ return self::$DB; }
 
 
 	/**
@@ -98,6 +99,7 @@ class DB
 	 */
 	public static function runSql( $sql, $data, $fields=False )
 	{
+		self::$results = array();  # setear array de resultado
 		self::$sql = $sql;  # reiniciar el query $sql
 		self::$data = $data;  # reiniciar la propiedad $data
 		self::conect();  # conectar a la DB
@@ -132,6 +134,7 @@ class DB
 	function __construct($DB = Null)
 	{
 		self::$DB = ($DB != Null) ? $DB : DB_NAME;
+		if(defined('DB_NAME_TEST')) self::$DB = DB_NAME_TEST;
 	}
 
 }
@@ -139,18 +142,25 @@ class DB
 $test = new DB();
 $sql = 'INSERT INTO users (Xtop, Yleft ) VALUES (?,?)';
 $data = array('ii',10,220);
-$insert_id = $test->runSql($sql, $data);
-echo "<pre>".print_r($insert_id,true)."</pre>\n";
-echo $test->getName();
+// $insert_id = $test->runSql($sql, $data);
+// echo "<pre>".print_r($insert_id,true)."</pre>\n";
+echo $test->getNameDB();
+echo "LOL";
 
 $test2 = new DB('galloapp');
-$sql = "SELECT firstname, lastname, id
-	FROM users
-	WHERE id = ?";
+
+$sql = "SELECT firstname, lastname, id FROM users WHERE id = ?";
 $data = array('s', '100000549605569');
 $fields = array("nombre" => "", "apellido" => "", "id" => "");
 $resultado = $test2->runSql($sql, $data, $fields);
+echo "<pre>".print_r($resultado[0]['nombre'],true)."</pre>\n";
+
+
+$sql = "SELECT firstname, lastname, id FROM users WHERE id = ?";
+$data = array('s', '100000361696056');
+$fields = array("nombre" => "", "apellido" => "", "id" => "");
+$resultado = $test2->runSql($sql, $data, $fields);
 echo "<pre>".print_r($resultado,true)."</pre>\n";
-echo $test2->getName();
+echo $test2->getNameDB();
 
 ?>
