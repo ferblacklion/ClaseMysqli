@@ -15,7 +15,7 @@ define('CHARSET','utf8');
 */
 class DB
 {
-	protected static $conn;  # objecto conector mysqli
+	private static $conn;  # objecto conector mysqli
 	protected static $DB = Null;
 	protected static $stmt;  # preparación del query SQL
 	protected static $reflection;  # objecto reflexivo de mysqli_stmt
