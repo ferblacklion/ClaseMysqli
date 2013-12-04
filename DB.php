@@ -29,7 +29,7 @@ class DB
 	/**
 	 * método para abrir la conexión a la DB
 	 */
-	protected static function conect()
+	private static function conect()
 	{
 		self::$conn = new mysqli(DB_HOST,DB_USER,DB_PASS,self::$DB);
 		if ( mysqli_connect_error() ) {
@@ -82,7 +82,7 @@ class DB
 	/**
 	 * metodo para cerrar conexion
 	 */
-	protected static function closeConn()
+	private static function closeConn()
 	{
 		self::$stmt->close();
 		self::$conn->close();
