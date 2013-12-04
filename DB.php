@@ -25,6 +25,7 @@ class DB
 	protected static $failDB = false;  #  si existe un error en la conexión a la DB
 
 
+
 	/**
 	 * método para abrir la conexión a la DB
 	 */
@@ -37,6 +38,10 @@ class DB
 			mysqli_set_charset(self::$conn, CHARSET);
 		}
 	}
+
+
+	/*  getters */
+	public function getName(){ return self::$DB; }
 
 
 	/**
@@ -119,9 +124,6 @@ class DB
 
 	}
 
-	/*  getters */
-	public function getDB(){ return self::$DB; }
-
 
 	/**
 	 * constructor para sobre escribir el nombre de la DB de lo contrario que no no exita el parametro de usara la constante DB_NAME
@@ -139,7 +141,7 @@ $sql = 'INSERT INTO users (Xtop, Yleft ) VALUES (?,?)';
 $data = array('ii',10,220);
 $insert_id = $test->runSql($sql, $data);
 echo "<pre>".print_r($insert_id,true)."</pre>\n";
-echo $test->getDB();
+echo $test->getName();
 
 $test2 = new DB('galloapp');
 $sql = "SELECT firstname, lastname, id
@@ -149,6 +151,6 @@ $data = array('s', '100000549605569');
 $fields = array("nombre" => "", "apellido" => "", "id" => "");
 $resultado = $test2->runSql($sql, $data, $fields);
 echo "<pre>".print_r($resultado,true)."</pre>\n";
-echo $test2->getDB();
+echo $test2->getName();
 
 ?>
