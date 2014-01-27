@@ -4,11 +4,9 @@
 const DB_HOST      = 'localhost';
 const DB_USER      = 'root';
 const DB_PASS      = '';
-const DB_NAME      = 'users_pl';
-const DB_NAME_TEST = 'galloapp';
+const DB_NAME      = 'usuarios_backpl';
+//  const DB_NAME_TEST = 'galloapp';
 const CHARSET      = 'utf8';
-
-
 
 
 /**
@@ -85,9 +83,10 @@ class DB
 	 */
 	private static function closeConn()
 	{
-		self::$stmt->close();
+		// self::$stmt->close();
 		self::$conn->close();
 	}
+
 
 
 	/**
@@ -127,6 +126,23 @@ class DB
 	}
 
 
+	public function getResultFromQuery($sql) {
+		self::$results = array();  # setear array de resultado
+		self::$sql = $sql;  # reiniciar el query $sql
+		self::conect();  # conectar a la DB
+
+		$resultado = self::$conn->query(self::$sql);
+		while (self::$results[] = $resultado->fetch_assoc());
+		$resultado->close();
+		array_pop(self::$results);
+
+		self::closeConn();  # cerrar conexion
+
+		return self::$results;
+
+	}
+
+
 	/**
 	 * constructor para sobre escribir el nombre de la DB de lo contrario que no no exita el parametro de usara la constante DB_NAME
 	 * @param [string] $DB nombre de la BD
@@ -139,28 +155,22 @@ class DB
 
 }
 
-$test = new DB();
-$sql = 'INSERT INTO users (Xtop, Yleft ) VALUES (?,?)';
-$data = array('ii',10,220);
-// $insert_id = $test->runSql($sql, $data);
-// echo "<pre>".print_r($insert_id,true)."</pre>\n";
-echo $test->getNameDB();
-echo "LOL";
 
-$test2 = new DB('galloapp');
+// $DB = new DB();
+// $query = "SELECT idusuarios FROM usuarios WHERE correo = ?";
+// $data = array('s', 'moises.cermeno@pushandpulltm.com');
+// $fields = array("idusuario" => "");
+// $resultado = $DB->runSql($query, $data, $fields);
 
-$sql = "SELECT firstname, lastname, id FROM users WHERE id = ?";
-$data = array('s', '100000549605569');
-$fields = array("nombre" => "", "apellido" => "", "id" => "");
-$resultado = $test2->runSql($sql, $data, $fields);
-echo "<pre>".print_r($resultado[0]['nombre'],true)."</pre>\n";
+// echo "<pre>".print_r($resultado,true)."</pre>\n";
 
+// echo $DB->getNameDB();
 
-$sql = "SELECT firstname, lastname, id FROM users WHERE id = ?";
-$data = array('s', '100000361696056');
-$fields = array("nombre" => "", "apellido" => "", "id" => "");
-$resultado = $test2->runSql($sql, $data, $fields);
-echo "<pre>".print_r($resultado,true)."</pre>\n";
-echo $test2->getNameDB();
+// $test2 = new DB();
+// $sql = "SELECT idcliente, nombre, empresa, correo FROM clientes ORDER BY idcliente ASC LIMIT 0, 5;";
+
+// $resultado = $test2->getResultFromQuery($sql);
+// echo "<pre>".print_r($resultado,true)."</pre>\n";
+
 
 ?>
