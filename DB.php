@@ -7,11 +7,7 @@
 const DB_HOST      = 'localhost';
 const DB_USER      = 'root';
 const DB_PASS      = '';
-const DB_NAME      = 'formulario';
-
-//  const DB_NAME_TEST = 'galloapp';
-
-
+const DB_NAME      = 'moiseswebdev';
 const CHARSET      = 'utf8';
 
 
@@ -22,17 +18,12 @@ const CHARSET      = 'utf8';
 class DB
 {
 	private static $conn;  # objecto conector mysqli
-	protected static $DB = Null;
 	protected static $stmt;  # preparación del query SQL
 	protected static $reflection;  # objecto reflexivo de mysqli_stmt
 	protected static $sql;  # sentencia sql a ser preparada
 	protected static $data;  # array conteniendo los tipos de datos mas los datos a ser enlazados (sera recibido como parametros)
 	private static $results = array();  #  colección de datos retornados por consulta de selección
-	protected static $failDB = false;  #  si existe un error en la conexión a la DB
-
-	public $cs = 'test';
-
-
+	protected static $errorDB = false;  #  si existe un error en la conexión a la DB
 
 
 	/**
@@ -40,9 +31,9 @@ class DB
 	 */
 	private static function conect()
 	{
-		self::$conn = new mysqli(DB_HOST,DB_USER,DB_PASS,self::$DB);
+		self::$conn = new mysqli(DB_HOST,DB_USER,DB_PASS,DB_NAME);
 		if ( mysqli_connect_error() ) {
-			self::$failDB = true;
+			self::$errorDB = true;
 		} else {
 			mysqli_set_charset(self::$conn, CHARSET);
 		}
@@ -50,11 +41,8 @@ class DB
 
 
 	/*  getters */
-	public function getNameDB(){ return self::$DB; }
-	public function getChar(){
-		//$charset = self::$conn->character_set_name();
-		return "Current character set is";
-	}
+	public function getNameDB(){ return DB_NAME; }
+	public function getChar(){ return self::$conn->character_set_name();}
 
 
 	/**
@@ -97,7 +85,7 @@ class DB
 	 */
 	private static function closeConn()
 	{
-		// self::$stmt->close();
+		self::$stmt->close();
 		self::$conn->close();
 	}
 
@@ -117,7 +105,7 @@ class DB
 		self::$data = $data;  # reiniciar la propiedad $data
 		self::conect();  # conectar a la DB
 
-		if (!self::$failDB) {
+		if (!self::$errorDB) {
 			self::prepareSql();  #preparar el query
 			self::setParams();  # enlazar los datos
 			self::$stmt->execute();  # ejecutar la consulta
@@ -127,9 +115,7 @@ class DB
 			} else {
 				if ( strpos(strtoupper(self::$sql), 'INSERT') === 0 ) {
 					return self::$stmt->insert_id;  #  ID resultado de la consulta INSERT
-				}
-
-				if ( strpos(strtoupper(self::$sql), 'UPDATE') === 0 ) {
+				} elseif ( strpos(strtoupper(self::$sql), 'UPDATE') === 0 ) {
 					return self::$stmt->affected_rows;  # columnas afectadas
 				}
 
@@ -137,8 +123,7 @@ class DB
 			self::closeConn();  # cerrar conexion
 		} else {
 			/*  Si ocurrio algun problema al conectar a la DB  */
-			$msg = '<strong>Error al conectar a la DB</strong>';
-			return $msg;
+			return 'Error al conectar a la DB!';
 		}
 
 	}
@@ -151,43 +136,14 @@ class DB
 
 		$resultado = self::$conn->query(self::$sql);
 		while (self::$results[] = $resultado->fetch_assoc());
-		$resultado->close();
 		array_pop(self::$results);
-
-		self::closeConn();  # cerrar conexion
-
+		$resultado->close();
+		self::$conn->close();  # cerrar conexion
 		return self::$results;
-
 	}
 
-
-	/**
-	 * constructor para sobre escribir el nombre de la DB de lo contrario que no no exita el parametro de usara la constante DB_NAME
-	 * @param [string] $DB nombre de la BD
-	 */
-	function __construct($DB = Null)
-	{
-		self::$DB = ($DB != Null) ? $DB : DB_NAME;
-		if(defined('DB_NAME_TEST')) self::$DB = DB_NAME_TEST;
-	}
 
 }
-
-// $test = new DB();
-// $sql = 'INSERT INTO users (Xtop, Yleft ) VALUES (?,?)';
-// $data = array('ii',10,220);
-// $insert_id = $test->runSql($sql, $data);
-// echo "<pre>".print_r($insert_id,true)."</pre>\n";
-// echo $test->getNameDB();
-// echo "LOL";
-
-// $test2 = new DB('galloapp');
-
-// $sql = "SELECT firstname, lastname, id FROM users WHERE id = ?";
-// $data = array('s', '100000549605569');
-// $fields = array("nombre" => "", "apellido" => "", "id" => "");
-// $resultado = $test2->runSql($sql, $data, $fields);
-// echo "<pre>".print_r($resultado[0]['nombre'],true)."</pre>\n";
 
 
 // $sql = "SELECT firstname, lastname, id FROM users WHERE id = ?";
@@ -195,36 +151,14 @@ class DB
 // $fields = array("nombre" => "", "apellido" => "", "id" => "");
 // $resultado = $test2->runSql($sql, $data, $fields);
 // echo "<pre>".print_r($resultado,true)."</pre>\n";
-// echo $test2->getNameDB();
 //
 
 
-// $DB = new DB();
-// $query = "SELECT idusuarios FROM usuarios WHERE correo = ?";
-// $data = array('s', 'moises.cermeno@pushandpulltm.com');
-// $fields = array("idusuario" => "");
-// $resultado = $DB->runSql($query, $data, $fields);
+$query = "UPDATE trabajos SET titulo = ? WHERE id = ?;";
+$data = array('si','Nombre change UNO 3',5);
+$fields = array('datos' => '');
+$results = DB::runSql($query, $data);
 
-// echo "<pre>".print_r($resultado,true)."</pre>\n";
-
-// echo $DB->getNameDB();
-
-// $test2 = new DB();
-// $sql = "SELECT nombre, nombre_usual FROM formulario;";
-
-// $resultado = DB::getResultFromQuery($sql);
-// echo "<pre>".print_r($resultado,true)."</pre>\n";
-
-// echo "<pre>".print_r($test2->getChar(),true)."</pre>\n";
-
-// echo count($resultado);
-// $paginas = ceil(count($resultado) / 10);
-// echo $paginas;
-
-// $update = new DB();
-// $query = "UPDATE formulario SET mostrar = ? WHERE id = ?";
-// $data = array('si','Y',40);
-
-// $resultado = DB::runSql($query,$data);
+echo "<pre>".print_r($results,true)."</pre>\n";
 
 ?>
